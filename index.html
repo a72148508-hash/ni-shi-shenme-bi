@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>看看你是什么逼</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body, #root { min-height: 100%; }
+    body {
+        min-height: 100svh;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        background: #ffffff;
+        color: #000000;
+    }
+    .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        min-height: 100svh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    /* ============ 开始页样式 ============ */
+    .start-page {
+        min-height: calc(100svh - 40px);
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding-bottom: max(20px, env(safe-area-inset-bottom));
+    }
+    .start-page h1 { font-size: 36px; font-weight: 700; margin-bottom: 12px; line-height: 1.2; letter-spacing: 0.5px; }
+    .start-page .subtitle { font-size: 16px; color: #666; margin-bottom: 20px; font-weight: 500; }
+    .start-page .description { font-size: 13px; color: #999; margin-bottom: 40px; line-height: 1.6; }
+    .start-button {
+        width: 100%; max-width: 280px; padding: 16px;
+        border: 1px solid #000; background: #000; color: #fff;
+        font-size: 16px; font-weight: 600; border-radius: 0; cursor: pointer;
+        transition: all 0.2s;
+    }
+    .start-button:hover { background: #333; border-color: #333; }
+    .start-button:active { transform: scale(0.98); }
+    .start-footer {
+        width: 100%; margin-top: 42px; padding-top: 20px;
+        border-top: 1px solid #e0e0e0; font-size: 12px; color: #999; line-height: 1.6;
+    }
+    .start-footer p { margin: 4px 0; }
+
+    /* ============ 问卷页样式 ============ */
+    .header { text-align: center; margin-bottom: 40px; border-bottom: 1px solid #e0e0e0; padding-bottom: 20px; }
+    .header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; letter-spacing: 0.5px; }
+    .header p { font-size: 14px; color: #666; }
+    .progress-section { margin-bottom: 30px; }
+    .progress-info { display: flex; justify-content: space-between; font-size: 13px; color: #666; margin-bottom: 8px; }
+    .progress-bar { height: 3px; background: #f0f0f0; border-radius: 0; overflow: hidden; }
+    .progress-fill { height: 100%; background: #000; transition: width 0.5s ease-out; }
+    .question-section { margin-bottom: 30px; }
+    .question-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; color: #000; }
+    .question-description { font-size: 14px; line-height: 1.6; color: #333; margin-bottom: 20px; }
+    .options { display: flex; flex-direction: column; gap: 10px; }
+    .option {
+        padding: 14px 16px; border: 1px solid #d0d0d0; background: #fafafa; cursor: pointer;
+        font-size: 13px; line-height: 1.5; color: #000; border-radius: 0; transition: all 0.2s; text-align: left;
+    }
+    .option:hover { background: #f5f5f5; border-color: #999; }
+    .option:active { background: #efefef; }
+    .option.disabled { opacity: 0.5; cursor: not-allowed; }
+    .option-label { font-weight: 600; display: inline-block; width: 25px; margin-right: 8px; }
+    .option-text { display: inline; }
+
+    /* ============ 结果页面样式 ============ */
+    .result-container { background: #fafafa; border: 1px solid #e0e0e0; padding: 0; border-radius: 0; }
+    .result-title-bar { text-align: center; padding: 20px; border-bottom: 1px solid #e0e0e0; background: #fff; }
+    .result-title-bar h1 {
+        font-size: 14px; font-weight: 600; color: #666; letter-spacing: 0.5px;
+        text-transform: uppercase; margin-bottom: 12px;
+    }
+    .result-tag { font-size: 32px; font-weight: 700; margin-bottom: 8px; color: #000; }
+    .result-match { font-size: 24px; font-weight: 700; color: #000; }
+    .free-section { padding: 25px; background: #fff; }
+    .result-item { margin-bottom: 22px; }
+    .result-label { font-size: 11px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+    .result-content { font-size: 13px; line-height: 1.7; color: #333; }
+    .result-content.main-intro { font-size: 14px; line-height: 1.8; }
+    .result-content.traits { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+    .trait-tag { display: inline-block; padding: 6px 12px; background: #f0f0f0; font-size: 12px; color: #666; border-radius: 0; }
+    .buttons-section { display: flex; gap: 10px; padding: 0 25px 25px; background: #fff; border-bottom: 1px solid #e0e0e0; }
+    .button {
+        flex: 1; padding: 12px 16px; border: 1px solid #000; background: #000; color: #fff;
+        cursor: pointer; font-size: 13px; font-weight: 600; border-radius: 0; transition: all 0.2s;
+    }
+    .button:hover { background: #333; border-color: #333; }
+    .button.secondary { background: #fff; color: #000; border-color: #000; }
+    .button.secondary:hover { background: #f5f5f5; }
+    .restart-link {
+        appearance: none; display: block; margin: 0 auto; padding: 8px 14px 20px;
+        border: 0; background: transparent; color: #888; font-size: 12px; text-decoration: underline; cursor: pointer;
+    }
+    .footer-tip { text-align: center; padding: 20px; background: #fff; font-size: 12px; color: #999; }
+    .footer-tip p { margin: 4px 0; }
+    .share-toast {
+        position: fixed; left: 50%; bottom: calc(28px + env(safe-area-inset-bottom));
+        transform: translateX(-50%) translateY(16px); z-index: 2200;
+        max-width: calc(100vw - 40px); padding: 11px 16px;
+        background: rgba(0,0,0,0.86); color: #fff; font-size: 13px; line-height: 1.4; text-align: center;
+        opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s;
+    }
+    .share-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 600px) {
+        .container { padding: 16px; }
+        .start-page h1 { font-size: 32px; }
+        .start-page .subtitle { font-size: 14px; }
+        .header h1 { font-size: 24px; }
+        .question-title { font-size: 16px; }
+        .question-description { font-size: 13px; }
+        .result-tag { font-size: 28px; }
+        .result-match { font-size: 20px; }
+    }
+</style>
+</head>
+<body>
+    <div id="root"></div>
+    <div id="shareToast" class="share-toast" role="status" aria-live="polite"></div>
+
+<script>
+// ============ 结果数据 ============
+const TAGS_CONFIG = {
+    '帅逼': {
+        desc: '颜值只是他最不值一提的优点，方圆十里蚊子经过都要被帅死。出门自带柔光滤镜，连呼吸都是在浪费空气中的帅气。',
+        traits: ['顶级颜值', '气质出众', '自带光环'],
+        strength: '你的终极优势是无与伦比的视觉冲击力。无论走到哪里，你都是人群中最闪耀的那一个。',
+        advice: '小心被当成花瓶，记得展示你的内涵，别让别人只看到皮囊。',
+        slogan: '出门自带柔光滤镜，连呼吸都在浪费空气。',
+    },
+    '旋风超级无敌巨能逼': {
+        desc: '表面稳如老狗，内心疯狂输出。一旦启动，方圆百里寸草不生，能把所有的尴尬和困难用物理逻辑直接旋风粉碎。',
+        traits: ['隐藏实力', '突然爆发', '能力超群'],
+        strength: '你是那种平时沉默，一鸣惊人的类型。关键时刻总能出人意料地解决问题。',
+        advice: '别总是隐藏自己，适当展露实力能让你获得更多机会和尊重。',
+        slogan: '启动成功，寸草不生。',
+    },
+    '纯情纯爱逼': {
+        desc: '看狗血剧会哭，牵个手能CPU自己三年。当代互联网硕果仅存的野生爱情活化石，深情到连路过的狗看了都想给他一巴掌。',
+        traits: ['浪漫至极', '一往情深', '过度真挚'],
+        strength: '你的优点是真挚和专一。在这个虚伪的时代，你的深情显得弥足珍贵。',
+        advice: '不是所有人都值得你的深情，学会识人和保护自己的心。',
+        slogan: '深情有罪，纯爱无罪。',
+    },
+    '疯狂星期四v我50逼': {
+        desc: '平时唯唯诺诺，一到周四立刻化身"V我50"的肯德基终极猎手。他的人生信条只有一句话：谁也别想阻挡我吃炸鸡。',
+        traits: ['饭桶战士', '快乐简单', '有美食即满足'],
+        strength: '你能在简单的事物里找到大快乐，这是现代人最稀缺的品质。',
+        advice: '别让对食物的热爱影响健康，适度才是王道。',
+        slogan: '疯狂星期四，v我50🍗',
+    },
+    '赛博装逼第一人逼': {
+        desc: '世界是他的舞台，空气是他的道具。每天不是在装逼，就是在去装逼的路上，哪怕口袋里只有10块钱，也要点一杯星巴克拍个氛围感照片。',
+        traits: ['精心包装', '努力营造', '人设大师'],
+        strength: '你懂得自我展现和品味营造。这份审美和执行力让你总能脱颖而出。',
+        advice: '记得真实的自己也值得被看见，别过度包装反而失去了本真。',
+        slogan: '偷偷努力，惊艳所有人。',
+    },
+    '苦逼': {
+        desc: '当代最完美的牛马标本。天选打工人，每天都在为了碎银几两起早贪黑，生活给他一巴掌，他还得问生活手疼不疼。',
+        traits: ['命运多舛', '吃苦耐劳', '坚韧不拔'],
+        strength: '你的坚韧和毅力是金钱买不来的。这些品质会在人生的关键时刻救你一命。',
+        advice: '别总是自我消耗，学会休息也是一种生活智慧。',
+        slogan: '为了碎银几两，起早贪黑。',
+    },
+    '精神状态极度美丽二逼': {
+        desc: '智慧眼神的终极拥有者。别人在思考人生，他在思考为什么不能吃自己的脚趾头。快乐源泉，脑回路异于常人，经常因为过于沙雕而与世界格格不入。',
+        traits: ['思路新奇', '逻辑独特', '天然快乐'],
+        strength: '你的快乐是不需要理由的。这份纯真和趣味让你成为身边的开心果。',
+        advice: '有时候认真一点会帮你走得更远，别总是浪。',
+        slogan: '精神状态极度美丽，精分第一人。',
+    },
+    '认怂速度快过闪电逼': {
+        desc: '战略性撤退的顶级大师。放最狠的话，认最快的怂。只要对方声音稍微大一点，他连以后孩子的名字和墓地在哪都想好了。',
+        traits: ['嘴硬心软', '见风转舵', '识时务者'],
+        strength: '你的柔软和妥协能力让你在复杂的人际关系中如鱼得水。',
+        advice: '有时候坚持立场也很重要，别什么都让步，否则容易被欺负。',
+        slogan: '别激我，我认怂最快。',
+    },
+    '独逼': {
+        desc: '终极孤狼，社交恐惧症晚期患者。手机常年静音，最开心的时刻是收到"快递已放入快递柜"的短信，一个人能过成一个军队。',
+        traits: ['享受孤独', '自给自足', '社交冷淡'],
+        strength: '你的独立和自足是很多人梦寐以求的。你的世界虽然小，但非常充实。',
+        advice: '适当的社交能拓展你的视野，完全孤立可能会限制你的成长。',
+        slogan: '一个人的修行，一个人的修养。',
+    },
+    '行走的赛博荷尔蒙无敌发光体逼': {
+        desc: '互联网骚话十级学者，行走的荷尔蒙放大器。他的骚不是在外表，而是在骨子里，一开口就能让空气瞬间焦灼，让人欲罢不能。',
+        traits: ['言语犀利', '魅力爆表', '性感撩人'],
+        strength: '你拥有与生俱来的魅力和说话的艺术。这让你在任何场景都能吸引注意力。',
+        advice: '别让魅力变成操纵，真诚会让你走得更远。',
+        slogan: '老娘天生尤物，撩汉第一人。',
+    },
+    '怨逼': {
+        desc: '当代林黛玉的赛博进化版。看天不是天，看地不是地，每天都在疯狂抱怨，能把一件芝麻绿豆大的小事复盘出太平洋的仇恨。',
+        traits: ['戏剧化生活', '无限吐槽', '怨念深重'],
+        strength: '你的细腻和感受力让你能捕捉到生活中的每一丝不完美，这对创作有帮助。',
+        advice: '学会放下会让你活得更轻松。不是所有的不公都值得纠缠。',
+        slogan: '世界对我的恶意太深，我的怨气太深。',
+    },
+    '卷逼': {
+        desc: '同事眼中的噩梦，老板眼中的好狗。每天不卷一下浑身难受，他的存在让周围所有人都显得像个废物。',
+        traits: ['自律至极', '永不满足', '内卷榜样'],
+        strength: '你的自律和执行力是你最大的资产。没有人比你更懂得自我管理。',
+        advice: '别让卷变成自我消耗，适度放松能让你走得更远。',
+        slogan: '越努力越幸运，不给自己放假。',
+    },
+    '只要死得够快谁也别想割我韭菜咸鱼平躺逼': {
+        desc: '只要我躺得够快，生活的镰刀就割不到我。人生宗旨是"明天的事明天再说，后天的事后天再想"，哪怕天塌下来也得先睡个午觉。',
+        traits: ['懒惰哲学', '及时行乐', '拒绝内卷'],
+        strength: '你理解了生活的真谛：不是所有努力都有回报，学会放松很重要。',
+        advice: '懒惰可以，但别影响你的未来。该拼的时候还是要拼。',
+        slogan: '躺平即是正义，混吃等死是梦想。',
+    },
+    '欧逼': {
+        desc: '单抽必出金，走路捡到钱，当代锦鲤本鲤。他的运气好到让人怀疑他是不是给阎王爷送过礼，属于让全网酸成柠檬精的存在。',
+        traits: ['运气爆表', '福源深厚', '天选之人'],
+        strength: '你的好运是真实存在的。很多人努力一辈子都得不到的，你轻松就有了。',
+        advice: '别仗着运气好就松懈。运气会变，但实力永远在。',
+        slogan: '欧皇命格，吸欧气如吸烟。',
+    },
+    '非酋大陆终极荣耀黑脸大祭司逼': {
+        desc: '非酋大陆的终极统治者。喝水塞牙，出门踩屎，抽卡永远吃保底。他的运气之差，已经可以当成科学研究的负面教材。',
+        traits: ['非酋护体', '诸事不顺', '衰神附身'],
+        strength: '你的倒霉是种特殊的才华。这使得你的故事总是特别精彩。',
+        advice: '运气不好没关系，多花点精力在能控制的事情上。',
+        slogan: '非酋护体，黑脸大祭司在线。',
+    },
+    '逼逼': {
+        desc: '话痨转世，只要嘴巴一动就停不下来。能从盘古开天辟地聊到村头的王大妈生了几个娃，别人说话费水，他说话费命。',
+        traits: ['话题无限', '舌灿莲花', '停不下来'],
+        strength: '你是天生的社交家和表演者。你的存在总能让气氛变得热烈。',
+        advice: '学会倾听会让你获得更多的朋友和机会。',
+        slogan: '我的嘴我做主，24小时开播。',
+    },
+    '键盘祖安大舞台有妈你就来第一战神逼': {
+        desc: '互联网第一战神，键盘上的迈克尔·泰森。哪里有瓜哪里就有他，逻辑严密，口齿伶俐，能把对方喷到怀疑人生、直接注销账号。',
+        traits: ['言辞犀利', '逻辑清晰', '网络斗士'],
+        strength: '你的表达能力和思辨能力都是顶级的。没人能在言语上胜过你。',
+        advice: '别总是用言语伤人，温和有时候比锋利更有力量。',
+        slogan: '一言不合就开喷，三俗段子我最精。',
+    },
+    '逗逼': {
+        desc: '长了一张让人想笑的脸，拥有化腐朽为神奇的搞笑天赋。朋友圈的泥石流，当代人的精神止痛药。',
+        traits: ['天生逗比', '搞笑能手', '快乐源泉'],
+        strength: '你能让周围的人都变得开心。这种能力是很多心理医生都学不会的。',
+        advice: '有时候认真一点，不要让别人觉得你不够靠谱。',
+        slogan: '我的笑容是一剂良药，治愈你的坏心情。',
+    },
+    '稳如泰山坚不可摧金刚不坏逼': {
+        desc: '稳健得像一尊活佛。泰山崩于前而面不改色，做任何事都有Plan B到Plan Z，稳到让对手感到绝望的心理学大师。',
+        traits: ['心态稳定', '谋划周密', '临危不惧'],
+        strength: '你的冷静和理性是宝贵的。在困难面前，你永远是最可靠的那个。',
+        advice: '有时候适度的情绪表达能让你更接近他人。别总是一副波澜不惊。',
+        slogan: '稳住，别浪，我们能赢。',
+    },
+};
+
+// ============ 题目数据 ============
+const QUESTIONS = [
+    {
+        id: 1,
+        title: '第1题',
+        description: '你在一个高端局聚会上，旁边坐着一个身价千万、开着劳斯莱斯、戴着理查德米勒的超级大少爷，他突然端着酒杯朝你走过来，你内心的第一OS是？',
+        options: [
+            { label: 'A', text: '机会来了！看我两句话拿下他，今晚不换个微信算我输！', tags: [{ name: '行走的赛博荷尔蒙无敌发光体逼', weight: 1 }, { name: '帅逼', weight: 1 }] },
+            { label: 'B', text: '别过来别过来……手机已静音，正在假装极度忙碌地回微信。', tags: [{ name: '独逼', weight: 1 }, { name: '认怂速度快过闪电逼', weight: 1 }] },
+            { label: 'C', text: '穿得挺高级啊，疯狂星期四能V我50证明一下吗？', tags: [{ name: '疯狂星期四v我50逼', weight: 1 }, { name: '逗逼', weight: 1 }] },
+            { label: 'D', text: '呵呵，有钱有什么了不起，明天早上六点他能爬起来搬砖吗？', tags: [{ name: '卷逼', weight: 1 }, { name: '苦逼', weight: 1 }] },
+        ]
+    },
+    {
+        id: 2,
+        title: '第2题',
+        description: '深夜两点，你陷入极其微妙的赛博emo状态，你决定发一条朋友圈，你会发什么？',
+        options: [
+            { label: 'A', text: '蓝黑调的豪车方向盘配深夜街景，配文："有些路，注定只能一个人走。"', tags: [{ name: '赛博装逼第一人逼', weight: 1 }, { name: '帅逼', weight: 1 }] },
+            { label: 'B', text: '满屏的专业书、加班PPT或者代码截图，配文："越努力，越幸运。"', tags: [{ name: '卷逼', weight: 1 }, { name: '苦逼', weight: 1 }] },
+            { label: 'C', text: '一张哈士奇翻白眼的沙雕表情包，配文："精神状态极度美丽。"', tags: [{ name: '精神状态极度美丽二逼', weight: 1 }, { name: '逗逼', weight: 1 }] },
+            { label: 'D', text: '经典纯爱动漫截图，配文："终究是错付了。"', tags: [{ name: '纯情纯爱逼', weight: 1 }, { name: '怨逼', weight: 1 }] },
+        ]
+    },
+    {
+        id: 3,
+        title: '第3题',
+        description: '你在冲浪时刷到一个极度反智的言论，血压飙升，你第一反应是？',
+        options: [
+            { label: 'A', text: '瞬间战神附体，连夜打下两千字小作文，全方位降维打击。', tags: [{ name: '键盘祖安大舞台有妈你就来第一战神逼', weight: 1 }, { name: '怨逼', weight: 1 }] },
+            { label: 'B', text: '在心里骂一句"二逼"，点个赞，推荐给更多人。', tags: [{ name: '稳如泰山坚不可摧金刚不坏逼', weight: 1 }, { name: '精神状态极度美丽二逼', weight: 1 }] },
+            { label: 'C', text: '关我屁事，天塌下来有高个子顶着，直接划走。', tags: [{ name: '只要死得够快谁也别想割我韭菜咸鱼平躺逼', weight: 1 }, { name: '独逼', weight: 1 }] },
+            { label: 'D', text: '顺着他的话开始胡言乱语，用比他更反智的话把他绕晕。', tags: [{ name: '旋风超级无敌巨能逼', weight: 1 }, { name: '逼逼', weight: 1 }] },
+        ]
+    },
+    {
+        id: 4,
+        title: '第4题',
+        description: '你玩的游戏出限定大奖，全网都在发"单抽入魂"，你的操作是？',
+        options: [
+            { label: 'A', text: '闭眼一发单抽，金光闪闪！截图发去所有群聊。', tags: [{ name: '欧逼', weight: 1 }, { name: '赛博装逼第一人逼', weight: 1 }] },
+            { label: 'B', text: '连续充值648，全部吃保底，最后一堆垃圾，砸键盘。', tags: [{ name: '非酋大陆终极荣耀黑脸大祭司逼', weight: 1 }, { name: '怨逼', weight: 1 }] },
+            { label: 'C', text: '默默看别人炫耀，冷笑："资本家套路，老子一分不花。"', tags: [{ name: '稳如泰山坚不可摧金刚不坏逼', weight: 1 }, { name: '只要死得够快谁也别想割我韭菜咸鱼平躺逼', weight: 1 }] },
+            { label: 'D', text: '疯狂艾特欧皇："义父！借点欧气！V我50去肯德基改改运！"', tags: [{ name: '疯狂星期四v我50逼', weight: 1 }, { name: '逼逼', weight: 1 }] },
+        ]
+    },
+    {
+        id: 5,
+        title: '第5题',
+        description: '老板/老师在周日晚上10点私聊你："小刘，把上个月的数据报表重新做一份，急用。"你会怎么回复？',
+        options: [
+            { label: 'A', text: '"收到！已经在电脑前了，5分钟后发您！"（在朋友圈单独对他可见：还在努力中）', tags: [{ name: '卷逼', weight: 1 }, { name: '苦逼', weight: 1 }] },
+            { label: 'B', text: '假装没看见，第二天早上8点59分回复："不好意思，睡太早了！"', tags: [{ name: '认怂速度快过闪电逼', weight: 1 }, { name: '只要死得够快谁也别想割我韭菜咸鱼平躺逼', weight: 1 }] },
+            { label: 'C', text: '"现在是私人时间，不处理公事，明天学校/公司见。"', tags: [{ name: '旋风超级无敌巨能逼', weight: 1 }, { name: '键盘祖安大舞台有妈你就来第一战神逼', weight: 1 }] },
+            { label: 'D', text: '疯狂在吐槽群里刷屏："家人们谁懂啊，这个点叫我做报表！"', tags: [{ name: '怨逼', weight: 1 }, { name: '逼逼', weight: 1 }] },
+        ]
+    },
+    {
+        id: 6,
+        title: '第6题',
+        description: '暗恋的女神/男神："我失恋了，好难过，你能来陪陪我吗？"你狂奔赶到，却发现对方只是想让你帮搬家，你会？',
+        options: [
+            { label: 'A', text: '毫无怨言疯狂搬冰箱，内心自我感动："只要他幸福就好！"', tags: [{ name: '纯情纯爱逼', weight: 1 }, { name: '苦逼', weight: 1 }] },
+            { label: 'B', text: '搬到一半突然顿悟，把床垫往地上一扔："告辞！"', tags: [{ name: '旋风超级无敌巨能逼', weight: 1 }, { name: '独逼', weight: 1 }] },
+            { label: 'C', text: '一边帮搬家，一边疯狂打听八卦，转头发死党群里当笑料。', tags: [{ name: '逼逼', weight: 1 }, { name: '逗逼', weight: 1 }] },
+            { label: 'D', text: '搬完甩头发，点烟："疯狂星期四，V我50算劳务费。"', tags: [{ name: '疯狂星期四v我50逼', weight: 1 }, { name: '行走的赛博荷尔蒙无敌发光体逼', weight: 1 }] },
+        ]
+    },
+    {
+        id: 7,
+        title: '第7题',
+        description: '神明给你个机会：只要当街大喊"我是个超级无敌大二逼"并跳三分钟土味大摆锤舞蹈，就能获得50万，你会？',
+        options: [
+            { label: 'A', text: '别说50万了，给50块我都当场能把地板跳穿！我自带BGM！', tags: [{ name: '疯狂星期四v我50逼', weight: 1 }, { name: '精神状态极度美丽二逼', weight: 1 }] },
+            { label: 'B', text: '优雅地拒绝："钱财乃身外之物，我更看重社会阶层与贵族尊严。"', tags: [{ name: '赛博装逼第一人逼', weight: 1 }, { name: '帅逼', weight: 1 }] },
+            { label: 'C', text: '开始跟神明讨价还价："100万我才跳，还要拉方圆十里的狗一起。"', tags: [{ name: '旋风超级无敌巨能逼', weight: 1 }, { name: '逼逼', weight: 1 }] },
+            { label: 'D', text: '拿出手机录制神明视频，准备发网上曝光非法集会。', tags: [{ name: '稳如泰山坚不可摧金刚不坏逼', weight: 1 }, { name: '独逼', weight: 1 }] },
+        ]
+    },
+    {
+        id: 8,
+        title: '第8题',
+        description: '下班路上，你突然发现钱包掉了，里面有2000块现金和身份证。你会？',
+        options: [
+            { label: 'A', text: '当众尖叫，甚至有点想哭，在街边原地转圈找。', tags: [{ name: '非酋大陆终极荣耀黑脸大祭司逼', weight: 1 }, { name: '精神状态极度美丽二逼', weight: 1 }] },
+            { label: 'B', text: '沉着应对，冷静分析掉落的可能位置，逐一排查。', tags: [{ name: '稳如泰山坚不可摧金刚不坏逼', weight: 1 }, { name: '卷逼', weight: 1 }] },
+            { label: 'C', text: '立刻回到最后一个去过的地方，心里自我安慰这不会这么倒霉。', tags: [{ name: '欧逼', weight: 1 }, { name: '苦逼', weight: 1 }] },
+            { label: 'D', text: '算了，既然掉了就掉了，反正再找也找不到，回家再想想怎么补办。', tags: [{ name: '只要死得够快谁也别想割我韭菜咸鱼平躺逼', weight: 1 }, { name: '独逼', weight: 1 }] },
+        ]
+    },
+    {
+        id: 9,
+        title: '第9题',
+        description: '朋友邀请你一起去参加一个KTV聚会，但你其实不太想去，你会怎么说？',
+        options: [
+            { label: 'A', text: '"行吧，反正闲着也是闲着，我去唱个十首。"', tags: [{ name: '逼逼', weight: 1 }, { name: '行走的赛博荷尔蒙无敌发光体逼', weight: 1 }] },
+            { label: 'B', text: '"我那天可能有点事，到时候看看吧。"（其实就是找个借口拒绝）', tags: [{ name: '认怂速度快过闪电逼', weight: 1 }, { name: '独逼', weight: 1 }] },
+            { label: 'C', text: '"抱歉我那天可能赶不上，要不下次？"（表现得很内疚）', tags: [{ name: '纯情纯爱逼', weight: 1 }, { name: '怨逼', weight: 1 }] },
+            { label: 'D', text: '"不去，我要加班/学习，这个月的KPI还没完成呢。"', tags: [{ name: '卷逼', weight: 1 }, { name: '苦逼', weight: 1 }] },
+        ]
+    },
+    {
+        id: 10,
+        title: '第10题',
+        description: '在朋友圈看到某个网红发了一条特别火的视频，你会？',
+        options: [
+            { label: 'A', text: '转发到自己的朋友圈，附上一句"绝了哈哈哈"。', tags: [{ name: '逗逼', weight: 1 }, { name: '行走的赛博荷尔蒙无敌发光体逼', weight: 1 }] },
+            { label: 'B', text: '评论区开喷，指出视频的问题所在，写上几句犀利言论。', tags: [{ name: '键盘祖安大舞台有妈你就来第一战神逼', weight: 1 }, { name: '怨逼', weight: 1 }] },
+            { label: 'C', text: '点赞，然后继续刷下一条，没什么特别想法。', tags: [{ name: '稳如泰山坚不可摧金刚不坏逼', weight: 1 }, { name: '精神状态极度美丽二逼', weight: 1 }] },
+            { label: 'D', text: '不屑一顾，觉得这种网红内容很低俗。', tags: [{ name: '赛博装逼第一人逼', weight: 1 }, { name: '帅逼', weight: 1 }] },
+        ]
+    },
+    {
+        id: 11,
+        title: '第11题',
+        description: '你即将开始一个新项目，难度系数很高，你的反应是？',
+        options: [
+            { label: 'A', text: '很兴奋，这正是我大展身手的机会！', tags: [{ name: '卷逼', weight: 1 }, { name: '旋风超级无敌巨能逼', weight: 1 }] },
+            { label: 'B', text: '有点紧张，但相信自己能搞定，先制定详细计划。', tags: [{ name: '稳如泰山坚不可摧金刚不坏逼', weight: 1 }, { name: '苦逼', weight: 1 }] },
+            { label: 'C', text: '有点怂，希望能有人帮忙，或者延期。', tags: [{ name: '认怂速度快过闪电逼', weight: 1 }, { name: '纯情纯爱逼', weight: 1 }] },
+            { label: 'D', text: '算了吧，这么难的项目肯定会失败，还不如不做。', tags: [{ name: '只要死得够快谁也别想割我韭菜咸鱼平躺逼', weight: 1 }, { name: '独逼', weight: 1 }] },
+        ]
+    },
+    {
+        id: 12,
+        title: '第12题',
+        description: '突然有人在大庭广众下批评了你一句，你会？',
+        options: [
+            { label: 'A', text: '当众反驳，不能被欺负，必须立刻回怼。', tags: [{ name: '旋风超级无敌巨能逼', weight: 1 }, { name: '键盘祖安大舞台有妈你就来第一战神逼', weight: 1 }] },
+            { label: 'B', text: '面不改色，笑着带过，心里记下来以后在朋友圈吐槽。', tags: [{ name: '怨逼', weight: 1 }, { name: '逼逼', weight: 1 }] },
+            { label: 'C', text: '赶紧认错道歉，生怕别人生气。', tags: [{ name: '认怂速度快过闪电逼', weight: 1 }, { name: '纯情纯爱逼', weight: 1 }] },
+            { label: 'D', text: '假装没听见，转身就走，懒得搭理。', tags: [{ name: '独逼', weight: 1 }, { name: '只要死得够快谁也别想割我韭菜咸鱼平躺逼', weight: 1 }] },
+        ]
+    },
+    {
+        id: 13,
+        title: '第13题',
+        description: '你经常在镜子前看自己，你主要是在做什么？',
+        options: [
+            { label: 'A', text: '欣赏自己的颜值和气质，调整角度寻找最佳角度。', tags: [{ name: '帅逼', weight: 1 }, { name: '赛博装逼第一人逼', weight: 1 }] },
+            { label: 'B', text: '检查自己有没有长痘或者皮肤问题，得保持最佳状态。', tags: [{ name: '卷逼', weight: 1 }, { name: '行走的赛博荷尔蒙无敌发光体逼', weight: 1 }] },
+            { label: 'C', text: '没什么特别的，就是随意照一照。', tags: [{ name: '精神状态极度美丽二逼', weight: 1 }, { name: '独逼', weight: 1 }] },
+            { label: 'D', text: '看着自己觉得不满意，越看越难受。', tags: [{ name: '怨逼', weight: 1 }, { name: '只要死得够快谁也别想割我韭菜咸鱼平躺逼', weight: 1 }] },
+        ]
+    },
+    {
+        id: 14,
+        title: '第14题',
+        description: '当你失恋或者遭遇挫折的时候，你通常会？',
+        options: [
+            { label: 'A', text: '沉浸在伤感中，写很多文案发朋友圈或者日记。', tags: [{ name: '纯情纯爱逼', weight: 1 }, { name: '怨逼', weight: 1 }] },
+            { label: 'B', text: '立刻投入工作/学习来转移注意力。', tags: [{ name: '卷逼', weight: 1 }, { name: '苦逼', weight: 1 }] },
+            { label: 'C', text: '叫上朋友聚聚，吃喝玩乐转移注意力。', tags: [{ name: '疯狂星期四v我50逼', weight: 1 }, { name: '逗逼', weight: 1 }] },
+            { label: 'D', text: '一个人独处，慢慢调整自己的心态。', tags: [{ name: '独逼', weight: 1 }, { name: '稳如泰山坚不可摧金刚不坏逼', weight: 1 }] },
+        ]
+    },
+    {
+        id: 15,
+        title: '第15题',
+        description: '如果有一个机会让你在所有人面前表现自己，你会选择什么？',
+        options: [
+            { label: 'A', text: '唱歌或者跳舞，展示我的才华和魅力。', tags: [{ name: '行走的赛博荷尔蒙无敌发光体逼', weight: 1 }, { name: '逗逼', weight: 1 }] },
+            { label: 'B', text: '做一个演讲，展示我的知识和逻辑。', tags: [{ name: '键盘祖安大舞台有妈你就来第一战神逼', weight: 1 }, { name: '逼逼', weight: 1 }] },
+            { label: 'C', text: '展示我的成就和奖项，证明我很优秀。', tags: [{ name: '卷逼', weight: 1 }, { name: '赛博装逼第一人逼', weight: 1 }] },
+            { label: 'D', text: '算了吧，我不太喜欢在众人面前表现自己。', tags: [{ name: '独逼', weight: 1 }, { name: '认怂速度快过闪电逼', weight: 1 }] },
+        ]
+    },
+];
+
+// ============ 计分逻辑 ============
+function calculateResult(scores, lastQuestionTagWeights) {
+    if (Object.keys(scores).length === 0) return null;
+    const maxScore = Math.max(...Object.values(scores));
+    const topTags = Object.entries(scores)
+        .filter(([, score]) => score === maxScore)
+        .map(([tag]) => tag);
+
+    if (topTags.length === 1) return topTags[0];
+
+    const lastQuestionWeights = new Map(lastQuestionTagWeights.map(t => [t.name, t.weight]));
+    let maxWeight = -1;
+    let bestTag = topTags[0];
+    for (const tag of topTags) {
+        const weight = lastQuestionWeights.get(tag) || 0;
+        if (weight > maxWeight) { maxWeight = weight; bestTag = tag; }
+    }
+    const bestTags = topTags.filter(tag => (lastQuestionWeights.get(tag) || 0) === maxWeight);
+    if (bestTags.length > 1) {
+        return bestTags[Math.floor(Math.random() * bestTags.length)];
+    }
+    return bestTag;
+}
+
+// ============ 状态管理 ============
+let appState = {
+    page: 'start',
+    currentQuestion: 0,
+    scores: {},
+    resultTag: null,
+    matchPercentage: null,
+    isAnimating: false,
+};
+
+function setState(updates) {
+    appState = { ...appState, ...updates };
+    render();
+}
+
+function startTest() {
+    setState({
+        page: 'question', currentQuestion: 0, scores: {},
+        resultTag: null, matchPercentage: null,
+    });
+}
+
+function handleSelectOption(tagWeights) {
+    if (appState.isAnimating) return;
+    setState({ isAnimating: true });
+
+    const newScores = { ...appState.scores };
+    tagWeights.forEach(({ name, weight }) => {
+        newScores[name] = (newScores[name] || 0) + weight;
+    });
+
+    setTimeout(() => {
+        if (appState.currentQuestion < QUESTIONS.length - 1) {
+            setState({ currentQuestion: appState.currentQuestion + 1, scores: newScores, isAnimating: false });
+        } else {
+            const result = calculateResult(newScores, tagWeights);
+            const matchPercentage = Math.floor(Math.random() * (99 - 82 + 1)) + 82;
+            setState({ page: 'result', scores: newScores, resultTag: result, matchPercentage, isAnimating: false });
+        }
+    }, 300);
+}
+
+function handleRestart() {
+    setState({ page: 'start', currentQuestion: 0, scores: {}, resultTag: null, matchPercentage: null });
+}
+
+let toastTimer = null;
+function showToast(message) {
+    const toast = document.getElementById('shareToast');
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2400);
+}
+
+function copyTextFallback(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    textarea.setSelectionRange(0, text.length);
+    const copied = document.execCommand('copy');
+    textarea.remove();
+    if (!copied) throw new Error('复制失败');
+}
+
+async function copyResult() {
+    const text = `我是【${appState.resultTag}】，匹配度${appState.matchPercentage}%。你呢？来测试一下吧 → 看看你是什么逼`;
+    try {
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+        } else {
+            copyTextFallback(text);
+        }
+        showToast('已复制，去发给朋友');
+    } catch (error) {
+        showToast('复制失败，请手动复制');
+    }
+}
+
+function render() {
+    const root = document.getElementById('root');
+
+    if (appState.page === 'start') {
+        root.innerHTML = `
+            <div class="container start-page">
+                <h1>看看你是什么逼？</h1>
+                <p class="subtitle">一次非常不严肃的人类精神状态检测</p>
+                <p class="description">15道题，测出你的抽象人格</p>
+                <button class="start-button" onclick="startTest()">开始测试</button>
+                <div class="start-footer">
+                    <p>冰淇淋计划出品</p>
+                    <p>测完别破防</p>
+                </div>
+            </div>
+        `;
+    } else if (appState.page === 'question') {
+        const question = QUESTIONS[appState.currentQuestion];
+        const progress = ((appState.currentQuestion + 1) / QUESTIONS.length) * 100;
+        root.innerHTML = `
+            <div class="container">
+                <div class="header">
+                    <h1>看看你是什么逼</h1>
+                    <p>通过测试题了解你的真实人设</p>
+                </div>
+                <div class="progress-section">
+                    <div class="progress-info">
+                        <span>第 ${appState.currentQuestion + 1} / ${QUESTIONS.length} 题</span>
+                        <span>${Math.round(progress)}%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${progress}%"></div>
+                    </div>
+                </div>
+                <div class="question-section">
+                    <h2 class="question-title">${question.title}</h2>
+                    <p class="question-description">${question.description}</p>
+                    <div class="options">
+                        ${question.options.map((option) => `
+                            <button class="option ${appState.isAnimating ? 'disabled' : ''}"
+                                onclick="handleSelectOption(${JSON.stringify(option.tags).replace(/"/g, '&quot;')})"
+                                ${appState.isAnimating ? 'disabled' : ''}>
+                                <span class="option-label">${option.label}.</span>
+                                <span class="option-text">${option.text}</span>
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+    } else if (appState.page === 'result') {
+        const tagData = TAGS_CONFIG[appState.resultTag];
+        if (!tagData) return;
+        root.innerHTML = `
+            <div class="container">
+                <div class="result-container">
+                    <div class="result-title-bar">
+                        <h1>看看你是什么逼</h1>
+                        <div class="result-tag">${appState.resultTag}</div>
+                        <div class="result-match">匹配度 ${appState.matchPercentage}%</div>
+                    </div>
+                    <div class="free-section">
+                        <div class="result-item">
+                            <div class="result-label">人物描述</div>
+                            <div class="result-content main-intro">${tagData.desc}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">核心特质</div>
+                            <div class="result-content traits">
+                                ${tagData.traits.map(t => `<span class="trait-tag">${t}</span>`).join('')}
+                            </div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">你的优势</div>
+                            <div class="result-content">${tagData.strength}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">建议</div>
+                            <div class="result-content">${tagData.advice}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">座右铭</div>
+                            <div class="result-content" style="font-weight: 600; font-size: 14px;">${tagData.slogan}</div>
+                        </div>
+                    </div>
+                    <div class="buttons-section">
+                        <button class="button" onclick="copyResult()">复制结果</button>
+                        <button class="button secondary" onclick="handleRestart()">重新测试</button>
+                    </div>
+                </div>
+                <div class="footer-tip">
+                    <p>测试结果仅供娱乐</p>
+                </div>
+            </div>
+        `;
+    }
+}
+
+render();
+</script>
+</body>
+</html>
